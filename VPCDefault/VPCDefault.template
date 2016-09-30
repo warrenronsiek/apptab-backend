@@ -1,0 +1,170 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "DefaultVPC for EC2 in AppTab",
+  "Resources": {
+    "DefaultVPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16"
+      }
+    },
+    "PublicSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        },
+        "AvailabilityZone": "us-west-2a",
+        "CidrBlock": "10.0.0.0/24",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DefaultVPCPublicSubnet"
+          }
+        ]
+      }
+    },
+    "PrivateSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        },
+        "AvailabilityZone": "us-west-2a",
+        "CidrBlock": "10.0.1.0/24",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DefaultVPCPrivateSubnet"
+          }
+        ]
+      }
+    },
+    "DefaultVPCIGW": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "IGW for AppTabDefaultVPC"
+          }
+        ]
+      }
+    },
+    "VPCGatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "DefaultVPCIGW"
+        }
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        }
+      }
+    },
+    "PublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "VPCGatewayAttachment",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "DefaultVPCIGW"
+        }
+      }
+    },
+    "PublicSubnetRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnet"
+        },
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        }
+      }
+    },
+    "PublicSubnetNetworkAclAssociation": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnet"
+        },
+        "NetworkAclId": {
+          "Fn::GetAtt": [
+            "DefaultVPC",
+            "DefaultNetworkAcl"
+          ]
+        }
+      }
+    },
+    "VPCDefaultAppTabSecGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Enable HTTP ingress",
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": "0",
+            "ToPort": "8000",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "VPCId": {
+      "Description": "VPC ID",
+      "Value": {
+        "Ref": "DefaultVPC"
+      },
+      "Export": {
+        "Name": "VPCDefaultAppTab"
+      }
+    },
+    "PublicSubnet": {
+      "Description": "The subnet ID to use for public web servers",
+      "Value": {
+        "Ref": "PublicSubnet"
+      },
+      "Export": {
+        "Name": "VPCDefaultAppTabPublicSubnet"
+      }
+    },
+    "PrivateSubnet": {
+      "Description": "",
+      "Value": {
+        "Ref": "PrivateSubnet"
+      },
+      "Export": {
+        "Name": "VPCDefaultAppTabPrivateSubnet"
+      }
+    },
+    "VPCDefaultPublicAppTabSecGroup": {
+      "Description": "The security group ID to use for public web servers",
+      "Value": {
+        "Fn::GetAtt": [
+          "VPCDefaultAppTabSecGroup",
+          "GroupId"
+        ]
+      },
+      "Export": {
+        "Name": "VPCDefaultPublicAppTabSecGroup"
+      }
+    }
+  }
+}
