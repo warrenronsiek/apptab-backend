@@ -1,0 +1,129 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "DynamoDB Backend for Apptab",
+  "Resources": {
+    "TagTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "TagId",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "VenueId",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "TagName",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "VenueName",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "TagId",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "VenueId",
+            "KeyType": "RANGE"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "2",
+          "WriteCapacityUnits": "2"
+        },
+        "TableName": "TagTable",
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "NameToId",
+            "KeySchema": [
+              {
+                "AttributeName": "VenueName",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "TagName",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "NonKeyAttributes": [
+                "VenueId",
+                "TagId"
+              ],
+              "ProjectionType": "INCLUDE"
+            },
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": "2",
+              "WriteCapacityUnits": "2"
+            }
+          }
+        ],
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "88edbd76-ce23-48b6-88f5-5d297e265383"
+        }
+      }
+    },
+    "MenuTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "VenueId",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "ItemId",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "VenueId",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "ItemId",
+            "KeyType": "RANGE"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "2",
+          "WriteCapacityUnits": "2"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "471eca2f-4aee-43fd-9239-ae176e4079a6"
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "TagTableOutput": {
+      "Value": {"Ref": "TagTable"},
+      "Export": {
+        "Name": "TagTable"
+      }
+    },
+    "MenuTableOutput": {
+      "Value": {"Ref": "MenuTable"},
+      "Export": {
+        "Name": "MenuTable"
+      }
+    }
+  }
+}
