@@ -27,15 +27,11 @@
           {
             "AttributeName": "TagId",
             "KeyType": "HASH"
-          },
-          {
-            "AttributeName": "VenueId",
-            "KeyType": "RANGE"
           }
         ],
         "ProvisionedThroughput": {
-          "ReadCapacityUnits": "2",
-          "WriteCapacityUnits": "2"
+          "ReadCapacityUnits": "1",
+          "WriteCapacityUnits": "1"
         },
         "TableName": "TagTable",
         "GlobalSecondaryIndexes": [
@@ -59,18 +55,37 @@
               "ProjectionType": "INCLUDE"
             },
             "ProvisionedThroughput": {
-              "ReadCapacityUnits": "2",
-              "WriteCapacityUnits": "2"
+              "ReadCapacityUnits": "1",
+              "WriteCapacityUnits": "1"
+            }
+          },
+          {
+            "IndexName": "VenueIdToTagId",
+            "KeySchema": [
+              {
+                "AttributeName": "VenueId",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "TagId",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "NonKeyAttributes": [
+                "VenueName",
+                "TagName"
+              ],
+              "ProjectionType": "INCLUDE"
+            },
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": "1",
+              "WriteCapacityUnits": "1"
             }
           }
         ],
         "StreamSpecification": {
           "StreamViewType": "NEW_AND_OLD_IMAGES"
-        }
-      },
-      "Metadata": {
-        "AWS::CloudFormation::Designer": {
-          "id": "88edbd76-ce23-48b6-88f5-5d297e265383"
         }
       }
     },
@@ -98,29 +113,28 @@
           }
         ],
         "ProvisionedThroughput": {
-          "ReadCapacityUnits": "2",
-          "WriteCapacityUnits": "2"
+          "ReadCapacityUnits": "1",
+          "WriteCapacityUnits": "1"
         },
         "StreamSpecification": {
           "StreamViewType": "NEW_AND_OLD_IMAGES"
-        }
-      },
-      "Metadata": {
-        "AWS::CloudFormation::Designer": {
-          "id": "471eca2f-4aee-43fd-9239-ae176e4079a6"
         }
       }
     }
   },
   "Outputs": {
     "TagTableOutput": {
-      "Value": {"Ref": "TagTable"},
+      "Value": {
+        "Ref": "TagTable"
+      },
       "Export": {
         "Name": "TagTable"
       }
     },
     "MenuTableOutput": {
-      "Value": {"Ref": "MenuTable"},
+      "Value": {
+        "Ref": "MenuTable"
+      },
       "Export": {
         "Name": "MenuTable"
       }
