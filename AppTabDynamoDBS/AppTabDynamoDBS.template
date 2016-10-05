@@ -127,22 +127,22 @@
       "Properties": {
         "AttributeDefinitions": [
           {
-            "AttributeName": "EndpointArn",
+            "AttributeName": "TagId",
             "AttributeType": "S"
           },
           {
-            "AttributeName": "TagId",
+            "AttributeName": "EndpointArn",
             "AttributeType": "S"
           }
         ],
         "TableName": "SubscriptionTable",
         "KeySchema": [
           {
-            "AttributeName": "EndpointArn",
+            "AttributeName": "TagId",
             "KeyType": "HASH"
           },
           {
-            "AttributeName": "TagId",
+            "AttributeName": "EndpointArn",
             "KeyType": "RANGE"
           }
         ],
