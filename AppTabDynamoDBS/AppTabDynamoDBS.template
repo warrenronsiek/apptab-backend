@@ -102,6 +102,7 @@
             "AttributeType": "S"
           }
         ],
+        "TableName": "MenuTable",
         "KeySchema": [
           {
             "AttributeName": "VenueId",
@@ -134,6 +135,7 @@
             "AttributeType": "S"
           }
         ],
+        "TableName": "SubscriptionTable",
         "KeySchema": [
           {
             "AttributeName": "EndpointArn",
