@@ -120,10 +120,42 @@
           "StreamViewType": "NEW_AND_OLD_IMAGES"
         }
       }
+    },
+    "SubscriptionTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "EndpointArn",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "TagId",
+            "AttributeType": "S"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "EndpointArn",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "TagId",
+            "KeyType": "RANGE"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "1",
+          "WriteCapacityUnits": "1"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        }
+      }
     }
   },
   "Outputs": {
-    "TagTableOutput": {
+    "TagTable": {
       "Value": {
         "Ref": "TagTable"
       },
@@ -131,12 +163,20 @@
         "Name": "TagTable"
       }
     },
-    "MenuTableOutput": {
+    "MenuTable": {
       "Value": {
         "Ref": "MenuTable"
       },
       "Export": {
         "Name": "MenuTable"
+      }
+    },
+    "SubscriptionTable": {
+      "Value": {
+        "Ref": "SubscriptionTable"
+      },
+      "Export": {
+        "Name": "SubscriptionTable"
       }
     }
   }
