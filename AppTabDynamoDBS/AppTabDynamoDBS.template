@@ -122,28 +122,82 @@
         }
       }
     },
-    "SubscriptionTable": {
+    "VenueTable": {
       "Type": "AWS::DynamoDB::Table",
       "Properties": {
         "AttributeDefinitions": [
           {
-            "AttributeName": "TagId",
+            "AttributeName": "VenueId",
+            "AttributeType": "N"
+          },
+          {
+            "AttributeName": "ClientId",
             "AttributeType": "S"
           },
           {
-            "AttributeName": "EndpointArn",
+            "AttributeName": "VenueName",
             "AttributeType": "S"
           }
         ],
-        "TableName": "SubscriptionTable",
+        "TableName": "VenueTable",
         "KeySchema": [
           {
-            "AttributeName": "TagId",
+            "AttributeName": "ClientId",
             "KeyType": "HASH"
           },
           {
-            "AttributeName": "EndpointArn",
+            "AttributeName": "VenueId",
             "KeyType": "RANGE"
+          }
+        ],
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "NameToId",
+            "KeySchema": [
+              {
+                "AttributeName": "VenueName",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "ClientId",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "NonKeyAttributes": [
+                "VenueId"
+              ],
+              "ProjectionType": "INCLUDE"
+            },
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": "1",
+              "WriteCapacityUnits": "1"
+            }
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "1",
+          "WriteCapacityUnits": "1"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        }
+      }
+    },
+    "VenueKeyTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "VenueId",
+            "AttributeType": "N"
+          }
+        ],
+        "TableName": "VenueKeyTable",
+        "KeySchema": [
+          {
+            "AttributeName": "VenueId",
+            "KeyType": "HASH"
           }
         ],
         "ProvisionedThroughput": {
@@ -157,6 +211,14 @@
     }
   },
   "Outputs": {
+    "VenueKeyTable": {
+      "Value": {
+        "Ref": "VenueKeyTable"
+      },
+      "Export": {
+        "Name": "VenueKeyTable"
+      }
+    },
     "TagTable": {
       "Value": {
         "Ref": "TagTable"
@@ -173,12 +235,12 @@
         "Name": "MenuTable"
       }
     },
-    "SubscriptionTable": {
+    "VenueTable": {
       "Value": {
-        "Ref": "SubscriptionTable"
+        "Ref": "VenueTable"
       },
       "Export": {
-        "Name": "SubscriptionTable"
+        "Name": "VenueTable"
       }
     }
   }
