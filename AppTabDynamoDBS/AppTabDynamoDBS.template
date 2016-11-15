@@ -152,6 +152,26 @@
         ],
         "GlobalSecondaryIndexes": [
           {
+            "IndexName": "VenueIdToClientId",
+            "KeySchema": [
+              {
+                "AttributeName": "VenueId",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "ClientId",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "KEYS_ONLY"
+            },
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": "1",
+              "WriteCapacityUnits": "1"
+            }
+          },
+          {
             "IndexName": "NameToId",
             "KeySchema": [
               {
