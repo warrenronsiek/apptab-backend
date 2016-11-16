@@ -2,12 +2,12 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "DynamoDB Backend for Apptab",
   "Resources": {
-    "TagTable": {
+    "NodeTable": {
       "Type": "AWS::DynamoDB::Table",
       "Properties": {
         "AttributeDefinitions": [
           {
-            "AttributeName": "TagId",
+            "AttributeName": "NodeId",
             "AttributeType": "S"
           },
           {
@@ -15,7 +15,7 @@
             "AttributeType": "S"
           },
           {
-            "AttributeName": "TagName",
+            "AttributeName": "NodeName",
             "AttributeType": "S"
           },
           {
@@ -25,7 +25,7 @@
         ],
         "KeySchema": [
           {
-            "AttributeName": "TagId",
+            "AttributeName": "NodeId",
             "KeyType": "HASH"
           }
         ],
@@ -33,7 +33,7 @@
           "ReadCapacityUnits": "1",
           "WriteCapacityUnits": "1"
         },
-        "TableName": "TagTable",
+        "TableName": "NodeTable",
         "GlobalSecondaryIndexes": [
           {
             "IndexName": "NameToId",
@@ -43,14 +43,14 @@
                 "KeyType": "HASH"
               },
               {
-                "AttributeName": "TagName",
+                "AttributeName": "NodeName",
                 "KeyType": "RANGE"
               }
             ],
             "Projection": {
               "NonKeyAttributes": [
                 "VenueId",
-                "TagId"
+                "NodeId"
               ],
               "ProjectionType": "INCLUDE"
             },
@@ -60,21 +60,21 @@
             }
           },
           {
-            "IndexName": "VenueIdToTagId",
+            "IndexName": "VenueIdToNodeId",
             "KeySchema": [
               {
                 "AttributeName": "VenueId",
                 "KeyType": "HASH"
               },
               {
-                "AttributeName": "TagId",
+                "AttributeName": "NodeId",
                 "KeyType": "RANGE"
               }
             ],
             "Projection": {
               "NonKeyAttributes": [
                 "VenueName",
-                "TagName"
+                "NodeName"
               ],
               "ProjectionType": "INCLUDE"
             },
@@ -128,7 +128,7 @@
         "AttributeDefinitions": [
           {
             "AttributeName": "VenueId",
-            "AttributeType": "N"
+            "AttributeType": "S"
           },
           {
             "AttributeName": "ClientId",
@@ -239,12 +239,12 @@
         "Name": "VenueClientMapTable"
       }
     },
-    "TagTable": {
+    "NodeTable": {
       "Value": {
-        "Ref": "TagTable"
+        "Ref": "NodeTable"
       },
       "Export": {
-        "Name": "TagTable"
+        "Name": "NodeTable"
       }
     },
     "MenuTable": {
