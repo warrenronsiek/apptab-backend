@@ -13,14 +13,6 @@
           {
             "AttributeName": "VenueId",
             "AttributeType": "S"
-          },
-          {
-            "AttributeName": "NodeName",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "VenueName",
-            "AttributeType": "S"
           }
         ],
         "KeySchema": [
@@ -36,31 +28,7 @@
         "TableName": "NodeTable",
         "GlobalSecondaryIndexes": [
           {
-            "IndexName": "NameToId",
-            "KeySchema": [
-              {
-                "AttributeName": "VenueName",
-                "KeyType": "HASH"
-              },
-              {
-                "AttributeName": "NodeName",
-                "KeyType": "RANGE"
-              }
-            ],
-            "Projection": {
-              "NonKeyAttributes": [
-                "VenueId",
-                "NodeId"
-              ],
-              "ProjectionType": "INCLUDE"
-            },
-            "ProvisionedThroughput": {
-              "ReadCapacityUnits": "1",
-              "WriteCapacityUnits": "1"
-            }
-          },
-          {
-            "IndexName": "VenueIdToNodeId",
+            "IndexName": "VenueIdToNodeId1",
             "KeySchema": [
               {
                 "AttributeName": "VenueId",
@@ -72,11 +40,7 @@
               }
             ],
             "Projection": {
-              "NonKeyAttributes": [
-                "VenueName",
-                "NodeName"
-              ],
-              "ProjectionType": "INCLUDE"
+              "ProjectionType": "KEYS_ONLY"
             },
             "ProvisionedThroughput": {
               "ReadCapacityUnits": "1",
