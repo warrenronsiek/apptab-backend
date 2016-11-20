@@ -124,7 +124,9 @@
               }
             ],
             "Projection": {
-              "NonKeyAttributes": ["ClientId"],
+              "NonKeyAttributes": [
+                "ClientId"
+              ],
               "ProjectionType": "INCLUDE"
             },
             "ProvisionedThroughput": {
@@ -192,6 +194,31 @@
           "StreamViewType": "NEW_AND_OLD_IMAGES"
         }
       }
+    },
+    "ClientTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "ClientId",
+            "AttributeType": "S"
+          }
+        ],
+        "TableName": "ClientTable",
+        "KeySchema": [
+          {
+            "AttributeName": "ClientId",
+            "KeyType": "HASH"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "1",
+          "WriteCapacityUnits": "1"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        }
+      }
     }
   },
   "Outputs": {
@@ -225,6 +252,14 @@
       },
       "Export": {
         "Name": "VenueTable"
+      }
+    },
+    "ClientTable": {
+      "Value": {
+        "Ref": "ClientTable"
+      },
+      "Export": {
+        "Name": "ClientTable"
       }
     }
   }
