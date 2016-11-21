@@ -28,7 +28,7 @@
         "TableName": "NodeTable",
         "GlobalSecondaryIndexes": [
           {
-            "IndexName": "VenueIdToNodeId1",
+            "IndexName": "VenueIdToNodeId",
             "KeySchema": [
               {
                 "AttributeName": "VenueId",
@@ -219,6 +219,39 @@
           "StreamViewType": "NEW_AND_OLD_IMAGES"
         }
       }
+    },
+    "SubscriptionTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "ClientId",
+            "AttributeType": "S"
+          },
+          {
+            "AttributeName": "NodeId",
+            "AttributeType": "S"
+          }
+        ],
+        "TableName": "SubscriptionTable",
+        "KeySchema": [
+          {
+            "AttributeName": "ClientId",
+            "KeyType": "HASH"
+          },
+          {
+            "AttributeName": "NodeId",
+            "KeyType": "RANGE"
+          }
+        ],
+        "ProvisionedThroughput": {
+          "ReadCapacityUnits": "1",
+          "WriteCapacityUnits": "1"
+        },
+        "StreamSpecification": {
+          "StreamViewType": "NEW_AND_OLD_IMAGES"
+        }
+      }
     }
   },
   "Outputs": {
@@ -228,6 +261,14 @@
       },
       "Export": {
         "Name": "VenueClientMapTable"
+      }
+    },
+    "SubscriptionTable": {
+      "Value": {
+        "Ref": "SubscriptionTable"
+      },
+      "Export": {
+        "Name": "SubscriptionTable"
       }
     },
     "NodeTable": {
