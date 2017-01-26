@@ -236,11 +236,11 @@
         "TableName": "SubscriptionTable",
         "KeySchema": [
           {
-            "AttributeName": "ClientId",
+            "AttributeName": "NodeId",
             "KeyType": "HASH"
           },
           {
-            "AttributeName": "NodeId",
+            "AttributeName": "ClientId",
             "KeyType": "RANGE"
           }
         ],
