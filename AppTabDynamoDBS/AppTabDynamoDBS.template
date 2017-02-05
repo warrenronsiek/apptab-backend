@@ -86,64 +86,6 @@
         }
       }
     },
-    "VenueClientMapTable": {
-      "Type": "AWS::DynamoDB::Table",
-      "Properties": {
-        "AttributeDefinitions": [
-          {
-            "AttributeName": "VenueId",
-            "AttributeType": "S"
-          },
-          {
-            "AttributeName": "ClientId",
-            "AttributeType": "S"
-          }
-        ],
-        "TableName": "VenueClientMapTable",
-        "KeySchema": [
-          {
-            "AttributeName": "VenueId",
-            "KeyType": "HASH"
-          },
-          {
-            "AttributeName": "ClientId",
-            "KeyType": "RANGE"
-          }
-        ],
-        "GlobalSecondaryIndexes": [
-          {
-            "IndexName": "ClientIdToVenueId",
-            "KeySchema": [
-              {
-                "AttributeName": "ClientId",
-                "KeyType": "HASH"
-              },
-              {
-                "AttributeName": "VenueId",
-                "KeyType": "RANGE"
-              }
-            ],
-            "Projection": {
-              "NonKeyAttributes": [
-                "ClientId"
-              ],
-              "ProjectionType": "INCLUDE"
-            },
-            "ProvisionedThroughput": {
-              "ReadCapacityUnits": "1",
-              "WriteCapacityUnits": "1"
-            }
-          }
-        ],
-        "ProvisionedThroughput": {
-          "ReadCapacityUnits": "1",
-          "WriteCapacityUnits": "1"
-        },
-        "StreamSpecification": {
-          "StreamViewType": "NEW_AND_OLD_IMAGES"
-        }
-      }
-    },
     "VenueTable": {
       "Type": "AWS::DynamoDB::Table",
       "Properties": {
@@ -255,14 +197,6 @@
     }
   },
   "Outputs": {
-    "VenueClientMapTable": {
-      "Value": {
-        "Ref": "VenueClientMapTable"
-      },
-      "Export": {
-        "Name": "VenueClientMapTable"
-      }
-    },
     "SubscriptionTable": {
       "Value": {
         "Ref": "SubscriptionTable"
