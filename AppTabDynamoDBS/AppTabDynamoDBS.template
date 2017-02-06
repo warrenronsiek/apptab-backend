@@ -97,6 +97,10 @@
           {
             "AttributeName": "VenueName",
             "AttributeType": "S"
+          },
+          {
+            "AttributeName": "CreatorClientId",
+            "AttributeType": "S"
           }
         ],
         "TableName": "VenueTable",
@@ -121,6 +125,26 @@
             ],
             "Projection": {
               "ProjectionType": "KEYS_ONLY"
+            },
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": "1",
+              "WriteCapacityUnits": "1"
+            }
+          },
+          {
+            "IndexName": "ClientIdToVenueId",
+            "KeySchema": [
+              {
+                "AttributeName": "CreatorClientId",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "VenueId",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
             },
             "ProvisionedThroughput": {
               "ReadCapacityUnits": "1",
