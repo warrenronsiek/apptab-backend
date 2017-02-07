@@ -210,6 +210,28 @@
             "KeyType": "RANGE"
           }
         ],
+        "GlobalSecondaryIndexes": [
+          {
+            "IndexName": "ClientIdToNodeId",
+            "KeySchema": [
+              {
+                "AttributeName": "ClientId",
+                "KeyType": "HASH"
+              },
+              {
+                "AttributeName": "NodeId",
+                "KeyType": "RANGE"
+              }
+            ],
+            "Projection": {
+              "ProjectionType": "ALL"
+            },
+            "ProvisionedThroughput": {
+              "ReadCapacityUnits": "1",
+              "WriteCapacityUnits": "1"
+            }
+          }
+        ],
         "ProvisionedThroughput": {
           "ReadCapacityUnits": "1",
           "WriteCapacityUnits": "1"
