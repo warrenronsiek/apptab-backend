@@ -24,6 +24,22 @@
         ]
       }
     },
+    "PublicSubnet2b": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "DefaultVPC"
+        },
+        "AvailabilityZone": "us-west-2b",
+        "CidrBlock": "10.0.2.0/24",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DefaultVPCPublicSubnet2b"
+          }
+        ]
+      }
+    },
     "PrivateSubnet": {
       "Type": "AWS::EC2::Subnet",
       "Properties": {
@@ -94,11 +110,36 @@
         }
       }
     },
+    "PublicSubnet2bRouteTableAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnet2b"
+        },
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        }
+      }
+    },
     "PublicSubnetNetworkAclAssociation": {
       "Type": "AWS::EC2::SubnetNetworkAclAssociation",
       "Properties": {
         "SubnetId": {
           "Ref": "PublicSubnet"
+        },
+        "NetworkAclId": {
+          "Fn::GetAtt": [
+            "DefaultVPC",
+            "DefaultNetworkAcl"
+          ]
+        }
+      }
+    },
+    "PublicSubnet2bNetworkAclAssociation": {
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "PublicSubnet2b"
         },
         "NetworkAclId": {
           "Fn::GetAtt": [
@@ -143,6 +184,15 @@
       },
       "Export": {
         "Name": "VPCDefaultAppTabPublicSubnet"
+      }
+    },
+    "PublicSubnet2b": {
+      "Description": "PublicSubnet ID for us-west-2b",
+      "Value": {
+        "Ref": "PublicSubnet2b"
+      },
+      "Export": {
+        "Name": "VPCDefaultAppTabPublicSubnet2b"
       }
     },
     "PrivateSubnet": {
