@@ -1,0 +1,58 @@
+---
+Resources:
+  AppTabKMS:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: 'Kms key used for apptab secret keys'
+      Enabled: true
+      KeyPolicy:
+        Version: 2012-10-17
+        Statement:
+          - Sid: "Allow administration of the key"
+            Effect: "Allow"
+            Principal:
+              AWS: "arn:aws:iam::721804331362:root"
+            Action:
+              - "kms:Create*"
+              - "kms:Describe*"
+              - "kms:Enable*"
+              - "kms:List*"
+              - "kms:Put*"
+              - "kms:Update*"
+              - "kms:Revoke*"
+              - "kms:Disable*"
+              - "kms:Get*"
+              - "kms:Delete*"
+              - "kms:ScheduleKeyDeletion"
+              - "kms:CancelKeyDeletion"
+              - "kms:Encrypt"
+              - "kms:Decrypt"
+              - "kms:ReEncrypt*"
+              - "kms:GenerateDataKey*"
+              - "kms:DescribeKey"
+            Resource: "*"
+          - Sid: "Allow use of the key"
+            Effect: "Allow"
+            Principal:
+              AWS: "arn:aws:lambda::*"
+            Action:
+              - "kms:Encrypt"
+              - "kms:Decrypt"
+              - "kms:ReEncrypt*"
+              - "kms:GenerateDataKey*"
+              - "kms:DescribeKey"
+            Resource: "*"
+  AppTabKMSAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/apptabkms
+      TargetKeyId: Ref AppTabKMS
+Outputs:
+  AppTabKMSArn:
+    Value: !GetAtt AppTabKMS.Arn
+    Export:
+      Name: AppTabKMSArn
+  AppTabKMSId:
+    Value: Ref AppTabKMS
+    Export:
+      Name: AppTabKMSId
