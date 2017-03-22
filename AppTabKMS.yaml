@@ -1,52 +1,51 @@
 ---
 Resources:
+  AppTabAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/AppTabKey
+      TargetKeyId:
+        Ref: AppTabKMS
   AppTabKMS:
     Type: AWS::KMS::Key
     Properties:
-      Description: 'Kms key used for apptab secret keys'
-      Enabled: true
+      Description: AppTab kms key
       KeyPolicy:
-        Version: 2012-10-17
+        Version: '2012-10-17'
         Statement:
-          - Sid: "Allow administration of the key"
-            Effect: "Allow"
-            Principal:
-              AWS: "arn:aws:iam::721804331362:root"
-            Action:
-              - "kms:Create*"
-              - "kms:Describe*"
-              - "kms:Enable*"
-              - "kms:List*"
-              - "kms:Put*"
-              - "kms:Update*"
-              - "kms:Revoke*"
-              - "kms:Disable*"
-              - "kms:Get*"
-              - "kms:Delete*"
-              - "kms:ScheduleKeyDeletion"
-              - "kms:CancelKeyDeletion"
-              - "kms:Encrypt"
-              - "kms:Decrypt"
-              - "kms:ReEncrypt*"
-              - "kms:GenerateDataKey*"
-              - "kms:DescribeKey"
-            Resource: "*"
-          - Sid: "Allow use of the key"
-            Effect: "Allow"
-            Principal:
-              AWS: "arn:aws:lambda::*"
-            Action:
-              - "kms:Encrypt"
-              - "kms:Decrypt"
-              - "kms:ReEncrypt*"
-              - "kms:GenerateDataKey*"
-              - "kms:DescribeKey"
-            Resource: "*"
-  AppTabKMSAlias:
-    Type: AWS::KMS::Alias
-    Properties:
-      AliasName: alias/apptabkms
-      TargetKeyId: Ref AppTabKMS
+        - Effect: Allow
+          Principal:
+            AWS: 'arn:aws:lambda::*'
+          Action:
+          - kms:Decrypt
+          - kms:DescribeKey
+          Resource: "*"
+        - Effect: Allow
+          Principal:
+            AWS:
+              Fn::Join:
+              - ''
+              - - 'arn:aws:iam::'
+                - Ref: AWS::AccountId
+                - ":root"
+          Action:
+          - kms:Create*
+          - kms:Encrypt
+          - kms:Decrypt
+          - kms:ReEncrypt*
+          - kms:GenerateDataKey*
+          - kms:Describe*
+          - kms:Enable*
+          - kms:List*
+          - kms:Put*
+          - kms:Update*
+          - kms:Revoke*
+          - kms:Disable*
+          - kms:Get*
+          - kms:Delete*
+          - kms:ScheduleKeyDeletion
+          - kms:CancelKeyDeletion
+          Resource: "*"
 Outputs:
   AppTabKMSArn:
     Value: !GetAtt AppTabKMS.Arn
