@@ -141,6 +141,7 @@ Resources:
   CustomerTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: CustomerTable
       AttributeDefinitions:
       - AttributeName: CustomerId
         AttributeType: S
