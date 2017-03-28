@@ -153,6 +153,22 @@ Resources:
         WriteCapacityUnits: '1'
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
+  TestUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: AppTabDynamoDBTestRunner
+      Policies:
+        - PolicyName: "DynamoDBReadAccess"
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:BatchGetItem
+                  - dynamodb:GetItem
+                  - dynamodb:ListTables
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource: "*"
 Outputs:
   SubscriptionTable:
     Value:
