@@ -153,22 +153,25 @@ Resources:
         WriteCapacityUnits: '1'
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
-  TestUser:
-    Type: AWS::IAM::User
+  CardTable:
+    Type: AWS::DynamoDB::Table
     Properties:
-      UserName: AppTabDynamoDBTestRunner
-      Policies:
-        - PolicyName: "DynamoDBReadAccess"
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Action:
-                  - dynamodb:BatchGetItem
-                  - dynamodb:GetItem
-                  - dynamodb:ListTables
-                  - dynamodb:Query
-                  - dynamodb:Scan
-                Resource: "*"
+      TableName: CardTable
+      AttributeDefinitions:
+      - AttributeName: CardId
+        AttributeType: S
+      - AttributeName: CustomerId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: CustomerId
+        KeyType: HASH
+      - AttributeName: CardId
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits: '1'
+        WriteCapacityUnits: '1'
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
 Outputs:
   SubscriptionTable:
     Value:
@@ -190,6 +193,11 @@ Outputs:
       Ref: VenueTable
     Export:
       Name: VenueTable
+  CardTable:
+    Value:
+      Ref: CardTable
+    Export:
+      Name: CardTable
   ClientTable:
     Value:
       Ref: ClientTable
