@@ -172,6 +172,48 @@ Resources:
         WriteCapacityUnits: '1'
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
+  TransactionTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: TransactionTable
+      AttributeDefinitions:
+        - AttributeName: TransactionId
+          AttributeType: S
+        - AttributeName: CustomerId
+          AttributeType: S
+        - AttributeName: ClientId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: TransactionId
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      GlobalSecondaryIndexes:
+      - IndexName: ClientKey
+        KeySchema:
+        - AttributeName: ClientId
+          KeyType: HASH
+        - AttributeName: TransactionId
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+      - IndexName: CustomerKey
+        KeySchema:
+        - AttributeName: CustomerId
+          KeyType: HASH
+        - AttributeName: TransactionId
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
 Outputs:
   SubscriptionTable:
     Value:
