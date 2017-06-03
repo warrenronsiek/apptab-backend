@@ -1,0 +1,172 @@
+---
+Description: Cognito pools for apptab
+Resources:
+  DevCustomerPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: False
+      AliasAttributes:
+        - phone_number
+      MfaConfiguration: OFF
+      UserPoolName: AppTabDevCustomerPool
+      Schema:
+        - Name: name
+          AttributeDataType: String
+          Mutable: True
+          Required: True
+          StringAttributeConstraints:
+            MaxLength: 11
+            MinLength: 2
+        - Name: phone_number
+          AttributeDataType: String
+          Mutable: False
+          Requred: True
+          StringAttributeConstraints:
+            MaxLength: 10
+            MinLength: 10
+      SmsAuthenticationMessage: "AppTab authentication code: {####}"
+      SmsConfiguration:
+        ExternalId: "bb970003-3bb7-4166-a95e-f36a7a7fd89e"
+        SnsCallerArn: "arn:aws:lambda:us-west-2:721804331362:function:apptab-customer-api-dev-cognitoSnsCaller"
+      SmsVerificationMessage: "AppTab authentication code: {####}"
+  DevClientPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: False
+      AliasAttribute:
+        - email
+      MfaConfiguration: OFF
+      UserPoolName: AppTabDevClientPool
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: True
+          Required: True
+        - Name: phone_number
+          AttributeDataType: String
+          Mutable: True
+          Required: True
+          StringAttributeConstraints:
+            MaxLength: 10
+            MinLength: 10
+  ProdCustomerPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: False
+      AliasAttributes:
+        - phone_number
+      MfaConfiguration: OFF
+      UserPoolName: AppTabProdCustomerPool
+      Schema:
+        - Name: name
+          AttributeDataType: String
+          Mutable: True
+          Required: True
+          StringAttributeConstraints:
+            MaxLength: 11
+            MinLength: 2
+        - Name: phone_number
+          AttributeDataType: String
+          Mutable: False
+          Required: True
+          StringAttributeConstraints:
+            MaxLength: 10
+            MinLength: 10
+  ProdClientPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: False
+      AliasAttributes:
+        - email
+      MfaConfiguration: OFF
+      UserPoolName: AppTabProdClientPool
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: True
+          Required: True
+        - Name: phone_number
+          AttributeDataType: String
+          Mutable: True
+          Required: True
+          StringAttributeConstraints:
+            MaxLength: 10
+            MinLength: 10
+  DevCustomerPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: AppTabCustomerAppDev
+      ExplicitAuthFlows: ADMIN_NO_SRP_AUTH
+      GenerateSecret: False
+      UserPoolId:
+        Ref: DevCustomerPool
+  DevClientPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: AppTabClientAppDev
+      ExplicitAuthFlows: ADMIN_NO_SRP_AUTH
+      GenerateSecret: False
+      UserPoolId:
+        Ref: DevClientPool
+  ProdCustomerPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: AppTabCustomerAppProd
+      ExplicitAuthFlows: ADMIN_NO_SRP_AUTH
+      GenerateSecret: False
+      UserPoolId:
+        Ref: ProdCustomerPool
+  ProdClientPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: AppTabClientAppProd
+      ExplicitAuthFlows: ADMIN_NO_SRP_AUTH
+      GenerateSecret: False
+      UserPoolId:
+        Ref: ProdClientPool
+Outputs:
+  DevCustomerPool:
+    Value:
+      Ref: DevCustomerPool
+    Export:
+      Name: AppTabDevCustomerPool
+  DevCustomerPoolClient:
+    Value:
+      Ref: DevCustomerPoolClient
+    Export:
+      Name: AppTabDevCustomerPoolClient
+  DevClientPool:
+    Value:
+      Ref: DevClientPool
+    Export:
+      Name: AppTabDevClientPool
+  DevClientPoolCleint:
+    Value:
+      Ref: DevClientPoolClient
+    Export:
+      Name: AppTabDevClientPoolClient
+  ProdCustomerPool:
+    Value:
+      Ref: ProdCustomerPool
+    Export:
+      Name: AppTabProdCustomerPool
+  ProdCustomerPoolClient:
+    Value:
+      Ref: ProdCustomerPoolClient
+    Export:
+      Name: AppTabProdCustomerPoolClient
+  ProdClientPool:
+    Value:
+      Ref: ProdClientPool
+    Export:
+      Name: AppTabProdClientPool
+  ProdClientPoolClient:
+    Value:
+      Ref: ProdClientPoolClient
+    Export:
+      Name: AppTabProdClientPoolClient
+
