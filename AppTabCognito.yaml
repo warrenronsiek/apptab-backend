@@ -8,7 +8,7 @@ Resources:
         AllowAdminCreateUserOnly: False
       AliasAttributes:
         - phone_number
-      MfaConfiguration: OFF
+      MfaConfiguration: "OFF"
       UserPoolName: AppTabDevCustomerPool
       Schema:
         - Name: name
@@ -21,23 +21,20 @@ Resources:
         - Name: phone_number
           AttributeDataType: String
           Mutable: False
-          Requred: True
+          Required: True
           StringAttributeConstraints:
             MaxLength: 10
             MinLength: 10
       SmsAuthenticationMessage: "AppTab authentication code: {####}"
-      SmsConfiguration:
-        ExternalId: "bb970003-3bb7-4166-a95e-f36a7a7fd89e"
-        SnsCallerArn: "arn:aws:lambda:us-west-2:721804331362:function:apptab-customer-api-dev-cognitoSnsCaller"
       SmsVerificationMessage: "AppTab authentication code: {####}"
   DevClientPool:
     Type: AWS::Cognito::UserPool
     Properties:
       AdminCreateUserConfig:
         AllowAdminCreateUserOnly: False
-      AliasAttribute:
+      AliasAttributes:
         - email
-      MfaConfiguration: OFF
+      MfaConfiguration: "OFF"
       UserPoolName: AppTabDevClientPool
       Schema:
         - Name: email
@@ -58,7 +55,7 @@ Resources:
         AllowAdminCreateUserOnly: False
       AliasAttributes:
         - phone_number
-      MfaConfiguration: OFF
+      MfaConfiguration: "OFF"
       UserPoolName: AppTabProdCustomerPool
       Schema:
         - Name: name
@@ -82,7 +79,7 @@ Resources:
         AllowAdminCreateUserOnly: False
       AliasAttributes:
         - email
-      MfaConfiguration: OFF
+      MfaConfiguration: "OFF"
       UserPoolName: AppTabProdClientPool
       Schema:
         - Name: email
@@ -100,7 +97,8 @@ Resources:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       ClientName: AppTabCustomerAppDev
-      ExplicitAuthFlows: ADMIN_NO_SRP_AUTH
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
       GenerateSecret: False
       UserPoolId:
         Ref: DevCustomerPool
@@ -108,7 +106,8 @@ Resources:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       ClientName: AppTabClientAppDev
-      ExplicitAuthFlows: ADMIN_NO_SRP_AUTH
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
       GenerateSecret: False
       UserPoolId:
         Ref: DevClientPool
@@ -116,7 +115,8 @@ Resources:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       ClientName: AppTabCustomerAppProd
-      ExplicitAuthFlows: ADMIN_NO_SRP_AUTH
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
       GenerateSecret: False
       UserPoolId:
         Ref: ProdCustomerPool
@@ -124,7 +124,8 @@ Resources:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       ClientName: AppTabClientAppProd
-      ExplicitAuthFlows: ADMIN_NO_SRP_AUTH
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
       GenerateSecret: False
       UserPoolId:
         Ref: ProdClientPool
