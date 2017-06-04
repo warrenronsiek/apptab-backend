@@ -129,45 +129,70 @@ Resources:
       GenerateSecret: False
       UserPoolId:
         Ref: ProdClientPool
+  SMSPushRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "cognito-idp.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: SMSPushPolicy
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "sns:publish"
+                Resource: "*"
 Outputs:
-  DevCustomerPool:
+  devCustomerPool:
     Value:
       Ref: DevCustomerPool
     Export:
-      Name: AppTabDevCustomerPool
-  DevCustomerPoolClient:
+      Name: devCustomerPool
+  devCustomerPoolClient:
     Value:
       Ref: DevCustomerPoolClient
     Export:
-      Name: AppTabDevCustomerPoolClient
-  DevClientPool:
+      Name: devCustomerPoolClient
+  devClientPool:
     Value:
       Ref: DevClientPool
     Export:
-      Name: AppTabDevClientPool
-  DevClientPoolCleint:
+      Name: devClientPool
+  devClientPoolCleint:
     Value:
       Ref: DevClientPoolClient
     Export:
-      Name: AppTabDevClientPoolClient
-  ProdCustomerPool:
+      Name: devClientPoolCleint
+  prodCustomerPool:
     Value:
       Ref: ProdCustomerPool
     Export:
-      Name: AppTabProdCustomerPool
-  ProdCustomerPoolClient:
+      Name: prodCustomerPool
+  prodCustomerPoolClient:
     Value:
       Ref: ProdCustomerPoolClient
     Export:
-      Name: AppTabProdCustomerPoolClient
-  ProdClientPool:
+      Name: prodCustomerPoolClient
+  prodClientPool:
     Value:
       Ref: ProdClientPool
     Export:
-      Name: AppTabProdClientPool
-  ProdClientPoolClient:
+      Name: prodClientPool
+  prodClientPoolClient:
     Value:
       Ref: ProdClientPoolClient
     Export:
-      Name: AppTabProdClientPoolClient
-
+      Name: prodClientPoolClient
+  SMSPushRole:
+    Value:
+      Ref: SMSPushRole
+    Export:
+      Name: SMSPushRoleId
+  SMSPushRoleArn:
+    Value: !GetAtt SMSPushRole.Arn
+    Export:
+      Name: SMSPushRoleArn
