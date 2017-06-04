@@ -129,23 +129,6 @@ Resources:
       GenerateSecret: False
       UserPoolId:
         Ref: ProdClientPool
-  SMSPushRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: "cognito-idp.amazonaws.com"
-            Action: "sts:AssumeRole"
-      Policies:
-        - PolicyName: SMSPushPolicy
-          PolicyDocument:
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "sns:publish"
-                Resource: "*"
 Outputs:
   devCustomerPool:
     Value:
@@ -187,12 +170,3 @@ Outputs:
       Ref: ProdClientPoolClient
     Export:
       Name: prodClientPoolClient
-  SMSPushRole:
-    Value:
-      Ref: SMSPushRole
-    Export:
-      Name: SMSPushRoleId
-  SMSPushRoleArn:
-    Value: !GetAtt SMSPushRole.Arn
-    Export:
-      Name: SMSPushRoleArn
