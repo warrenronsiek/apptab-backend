@@ -140,16 +140,24 @@ Outputs:
       Ref: DevCustomerPoolClient
     Export:
       Name: devCustomerPoolClient
+  devCustomerPoolArn:
+    Value: !GetAtt DevCustomerPool.Arn
+    Export:
+      Name: devCustomerPoolArn
   devClientPool:
     Value:
       Ref: DevClientPool
     Export:
       Name: devClientPool
-  devClientPoolCleint:
+  devClientPoolClient:
     Value:
       Ref: DevClientPoolClient
     Export:
       Name: devClientPoolCleint
+  devClientPoolArn:
+    Value: !GetAtt DevClientPool.Arn
+    Export:
+      Name: devClientPoolArn
   prodCustomerPool:
     Value:
       Ref: ProdCustomerPool
@@ -160,6 +168,10 @@ Outputs:
       Ref: ProdCustomerPoolClient
     Export:
       Name: prodCustomerPoolClient
+  prodCustomerPoolArn:
+    Value: !GetAtt ProdCustomerPool.Arn
+    Export:
+      Name: prodCustomerPoolArn
   prodClientPool:
     Value:
       Ref: ProdClientPool
@@ -170,3 +182,7 @@ Outputs:
       Ref: ProdClientPoolClient
     Export:
       Name: prodClientPoolClient
+  prodClientPoolArn:
+    Value: !GetAtt ProdClientPool.Arn
+    Export:
+      Name: prodClientPoolArn
