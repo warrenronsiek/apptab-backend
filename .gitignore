@@ -1,2 +1,7 @@
-# Created by .ignore support plugin (hsz.mobi)
+# package directories
+node_modules
+jspm_packages
+
+# Serverless directories
+.serverless
 .idea
