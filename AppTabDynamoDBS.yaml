@@ -219,34 +219,34 @@ Outputs:
     Value:
       Ref: SubscriptionTable
     Export:
-      Name: SubscriptionTable
+      Name: SubscriptionTableDEPRECATED
   NodeTable:
     Value:
       Ref: NodeTable
     Export:
-      Name: NodeTable
+      Name: NodeTableDEPRECATED
   MenuTable:
     Value:
       Ref: MenuTable
     Export:
-      Name: MenuTable
+      Name: MenuTableDEPRECATED
   VenueTable:
     Value:
       Ref: VenueTable
     Export:
-      Name: VenueTable
+      Name: VenueTableDEPRECATED
   CardTable:
     Value:
       Ref: CardTable
     Export:
-      Name: CardTable
+      Name: CardTableDEPRECATED
   ClientTable:
     Value:
       Ref: ClientTable
     Export:
-      Name: ClientTable
+      Name: ClientTableDEPRECATED
   CustomerTable:
     Value:
       Ref: CustomerTable
     Export:
-      Name: CustomerTable
+      Name: CustomerTableDEPRECATED

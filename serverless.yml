@@ -2,7 +2,10 @@ service: aws-nodejs
 provider:
   name: aws
   runtime: nodejs6.10
-  stage: dev
+  stage: ${opt:stage, self:custom.default_stage}
+  memorySize: 128
+  environment:
+    stage: ${self:provider.stage}
   region: us-west-2
 
   iamRoleStatements:
@@ -20,63 +23,360 @@ provider:
             - "Ref" : "ServerlessDeploymentBucket"
             - "/*"
 
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
-# you can add packaging information here
-#package:
-#  include:
-#    - include-me.js
-#    - include-me-dir/**
-#  exclude:
-#    - exclude-me.js
-#    - exclude-me-dir/**
+custom:
+  default_stage: dev
 
 functions:
   hello:
-    handler: handler.hello
+    handler: lib/hello
 
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
-#    events:
-#      - http:
-#          path: users/create
-#          method: get
-#      - s3: ${env:BUCKET}
-#      - schedule: rate(10 minutes)
-#      - sns: greeter-topic
-#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
-#      - alexaSkill
-#      - iot:
-#          sql: "SELECT * FROM 'some_topic'"
-#      - cloudwatchEvent:
-#          event:
-#            source:
-#              - "aws.ec2"
-#            detail-type:
-#              - "EC2 Instance State-change Notification"
-#            detail:
-#              state:
-#                - pending
-#      - cloudwatchLog: '/aws/lambda/hello'
-#      - cognitoUserPool:
-#          pool: MyUserPool
-#          trigger: PreSignUp
-
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
-
-# you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+resources:
+  Resources:
+    NodeTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: NodeId
+          AttributeType: S
+        - AttributeName: VenueId
+          AttributeType: S
+        KeySchema:
+        - AttributeName: NodeId
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: '1'
+          WriteCapacityUnits: '1'
+        TableName: ${self:provider.stage}-NodeTable
+        GlobalSecondaryIndexes:
+        - IndexName: VenueIdToNodeId
+          KeySchema:
+          - AttributeName: VenueId
+            KeyType: HASH
+          - AttributeName: NodeId
+            KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: '1'
+            WriteCapacityUnits: '1'
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    MenuTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: VenueId
+          AttributeType: S
+        - AttributeName: ItemId
+          AttributeType: S
+        TableName: ${self:provider.stage}-MenuTable
+        KeySchema:
+        - AttributeName: VenueId
+          KeyType: HASH
+        - AttributeName: ItemId
+          KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: '1'
+          WriteCapacityUnits: '1'
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    VenueTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: VenueId
+          AttributeType: S
+        - AttributeName: VenueName
+          AttributeType: S
+        - AttributeName: CreatorClientId
+          AttributeType: S
+        TableName: ${self:provider.stage}-VenueTable
+        KeySchema:
+        - AttributeName: VenueId
+          KeyType: HASH
+        GlobalSecondaryIndexes:
+        - IndexName: NameToId
+          KeySchema:
+          - AttributeName: VenueName
+            KeyType: HASH
+          - AttributeName: VenueId
+            KeyType: RANGE
+          Projection:
+            ProjectionType: KEYS_ONLY
+          ProvisionedThroughput:
+            ReadCapacityUnits: '1'
+            WriteCapacityUnits: '1'
+        - IndexName: ClientIdToVenueId
+          KeySchema:
+          - AttributeName: CreatorClientId
+            KeyType: HASH
+          - AttributeName: VenueId
+            KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: '1'
+            WriteCapacityUnits: '1'
+        ProvisionedThroughput:
+          ReadCapacityUnits: '1'
+          WriteCapacityUnits: '1'
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    ClientTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: ClientId
+          AttributeType: S
+        TableName: ${self:provider.stage}-ClientTable
+        KeySchema:
+        - AttributeName: ClientId
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: '1'
+          WriteCapacityUnits: '1'
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    SubscriptionTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: ClientId
+          AttributeType: S
+        - AttributeName: NodeId
+          AttributeType: S
+        TableName: ${self:provider.stage}-SubscriptionTable
+        KeySchema:
+        - AttributeName: NodeId
+          KeyType: HASH
+        - AttributeName: ClientId
+          KeyType: RANGE
+        GlobalSecondaryIndexes:
+        - IndexName: ClientIdToNodeId
+          KeySchema:
+          - AttributeName: ClientId
+            KeyType: HASH
+          - AttributeName: NodeId
+            KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: '1'
+            WriteCapacityUnits: '1'
+        ProvisionedThroughput:
+          ReadCapacityUnits: '1'
+          WriteCapacityUnits: '1'
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    CustomerTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.stage}-CustomerTable
+        AttributeDefinitions:
+        - AttributeName: CustomerId
+          AttributeType: S
+        KeySchema:
+        - AttributeName: CustomerId
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: '1'
+          WriteCapacityUnits: '1'
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    CardTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.stage}-CardTable
+        AttributeDefinitions:
+        - AttributeName: CardId
+          AttributeType: S
+        - AttributeName: CustomerId
+          AttributeType: S
+        KeySchema:
+        - AttributeName: CustomerId
+          KeyType: HASH
+        - AttributeName: CardId
+          KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: '1'
+          WriteCapacityUnits: '1'
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    TransactionTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.stage}-TransactionTable
+        AttributeDefinitions:
+          - AttributeName: TransactionId
+            AttributeType: S
+          - AttributeName: CustomerId
+            AttributeType: S
+          - AttributeName: ClientId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: TransactionId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        GlobalSecondaryIndexes:
+        - IndexName: ClientKey
+          KeySchema:
+          - AttributeName: ClientId
+            KeyType: HASH
+          - AttributeName: TransactionId
+            KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+        - IndexName: CustomerKey
+          KeySchema:
+          - AttributeName: CustomerId
+            KeyType: HASH
+          - AttributeName: TransactionId
+            KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
+    CustomerPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        AdminCreateUserConfig:
+          AllowAdminCreateUserOnly: False
+        AliasAttributes:
+          - phone_number
+        MfaConfiguration: "OFF"
+        UserPoolName: ${self:provider.stage}-CustomerPool
+        Schema:
+          - Name: name
+            AttributeDataType: String
+            Mutable: True
+            Required: True
+            StringAttributeConstraints:
+              MaxLength: 11
+              MinLength: 2
+          - Name: phone_number
+            AttributeDataType: String
+            Mutable: False
+            Required: True
+            StringAttributeConstraints:
+              MaxLength: 20
+              MinLength: 12
+        SmsAuthenticationMessage: "AppTab authentication code: {####}"
+        SmsVerificationMessage: "AppTab authentication code: {####}"
+    ClientPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        AdminCreateUserConfig:
+          AllowAdminCreateUserOnly: False
+        AliasAttributes:
+          - email
+        MfaConfiguration: "OFF"
+        UserPoolName: ${self:provider.stage}-ClientPool
+        Schema:
+          - Name: email
+            AttributeDataType: String
+            Mutable: True
+            Required: True
+          - Name: phone_number
+            AttributeDataType: String
+            Mutable: True
+            Required: True
+            StringAttributeConstraints:
+              MaxLength: 20
+              MinLength: 12
+    CustomerPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ${self:provider.stage}-CustomerApp
+        ExplicitAuthFlows:
+          - ADMIN_NO_SRP_AUTH
+        GenerateSecret: False
+        UserPoolId:
+          Ref: CustomerPool
+    ClientPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ${self:provider.stage}-ClientApp
+        ExplicitAuthFlows:
+          - ADMIN_NO_SRP_AUTH
+        GenerateSecret: False
+        UserPoolId:
+          Ref: ClientPool
+  Outputs:
+    SubscriptionTable:
+      Value:
+        Ref: SubscriptionTable
+      Export:
+        Name: ${self:provider.stage}-SubscriptionTable
+    NodeTable:
+      Value:
+        Ref: NodeTable
+      Export:
+        Name: ${self:provider.stage}-NodeTable
+    MenuTable:
+      Value:
+        Ref: MenuTable
+      Export:
+        Name: ${self:provider.stage}-MenuTable
+    VenueTable:
+      Value:
+        Ref: VenueTable
+      Export:
+        Name: ${self:provider.stage}-VenueTable
+    CardTable:
+      Value:
+        Ref: CardTable
+      Export:
+        Name: ${self:provider.stage}-CardTable
+    ClientTable:
+      Value:
+        Ref: ClientTable
+      Export:
+        Name: ${self:provider.stage}-ClientTable
+    CustomerTable:
+      Value:
+        Ref: CustomerTable
+      Export:
+        Name: ${self:provider.stage}-CustomerTable
+    TransactionTable:
+      Value:
+        Ref: TransactionTable
+      Export:
+        Name: ${self:provider.stage}-TransactionTable
+    CustomerPool:
+      Value:
+        Ref: CustomerPool
+      Export:
+        Name: ${self:provider.stage}-CustomerPool
+    CustomerPoolClient:
+      Value:
+        Ref: CustomerPoolClient
+      Export:
+        Name: ${self:provider.stage}-CustomerPoolClient
+    CustomerPoolArn:
+      Value:
+        Fn::GetAtt: [CustomerPool, Arn]
+      Export:
+        Name: ${self:provider.stage}-CustomerPoolArn
+    ClientPool:
+      Value:
+        Ref: ClientPool
+      Export:
+        Name: ${self:provider.stage}-ClientPool
+    ClientPoolClient:
+      Value:
+        Ref: ClientPoolClient
+      Export:
+        Name: ${self:provider.stage}-ClientPoolCleint
+    ClientPoolArn:
+      Value:
+        Fn::GetAtt: [ClientPool, Arn]
+      Export:
+        Name: ${self:provider.stage}-ClientPoolArn
