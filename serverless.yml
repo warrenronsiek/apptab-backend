@@ -398,7 +398,7 @@ resources:
       Type: AWS::Cognito::IdentityPool
       Properties:
         IdentityPoolName: ${self:provider.stage}CustomerIDP
-        AllowUnauthenticatedIdentities: false
+        AllowUnauthenticatedIdentities: true
         CognitoIdentityProviders:
         - ClientId:
             Ref: CustomerPoolClient
@@ -417,6 +417,10 @@ resources:
             Fn::GetAtt:
             - FirehoseWriteRole
             - Arn
+          unauthenticated:
+            Fn::GetAtt:
+            - FirehoseWriteRole
+            - Arn
     FirehoseWriteRole:
       Type: AWS::IAM::Role
       Properties:
@@ -431,8 +435,6 @@ resources:
               StringEquals:
                 "cognito-identity.amazonaws.com:aud":
                   Ref: FirehoseWriteIDP
-              "ForAnyValue:StringLike":
-                "cognito-identity.amazonaws.com:amr": authenticated
         Policies:
         - PolicyName: WriteToFirehose
           PolicyDocument:
