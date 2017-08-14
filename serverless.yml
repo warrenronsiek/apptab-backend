@@ -452,6 +452,10 @@ resources:
                   - Ref: AWS::AccountId
                   - ":deliverystream/"
                   - Ref: Firehose
+    ClosedTransactionBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.stage}-apptab-closed-transaction-bucket
   Outputs:
     SubscriptionTable:
       Value:
@@ -523,3 +527,8 @@ resources:
         Fn::GetAtt: [ClientPool, Arn]
       Export:
         Name: ${self:provider.stage}-ClientPoolArn
+    ClosedTransactionBucket:
+      Value:
+        Fn::GetAtt: [ClosedTransactionBucket, Arn]
+      Export:
+        Name: ${self:provider.stage}-ClosedTransactionBucket
