@@ -26,10 +26,6 @@ provider:
 custom:
   default_stage: dev
 
-functions:
-  hello:
-    handler: lib/hello
-
 resources:
   Resources:
     NodeTable:
@@ -209,9 +205,11 @@ resources:
         AttributeDefinitions:
           - AttributeName: TransactionId
             AttributeType: S
+          - AttributeName: VenueId
+            AttributeType: S
           - AttributeName: CustomerId
             AttributeType: S
-          - AttributeName: ClientId
+          - AttributeName: NodeId
             AttributeType: S
         KeySchema:
           - AttributeName: TransactionId
@@ -220,9 +218,9 @@ resources:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
         GlobalSecondaryIndexes:
-        - IndexName: ClientKey
+        - IndexName: VenueKey
           KeySchema:
-          - AttributeName: ClientId
+          - AttributeName: VenueId
             KeyType: HASH
           - AttributeName: TransactionId
             KeyType: RANGE
@@ -234,6 +232,17 @@ resources:
         - IndexName: CustomerKey
           KeySchema:
           - AttributeName: CustomerId
+            KeyType: HASH
+          - AttributeName: TransactionId
+            KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+        - IndexName: NodeKey
+          KeySchema:
+          - AttributeName: NodeId
             KeyType: HASH
           - AttributeName: TransactionId
             KeyType: RANGE
