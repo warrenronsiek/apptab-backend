@@ -26,10 +26,6 @@ provider:
 custom:
   default_stage: dev
 
-functions:
-  hello:
-    handler: lib/hello
-
 resources:
   Resources:
     NodeTable:
