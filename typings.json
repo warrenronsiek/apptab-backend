@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "aws-sdk": "registry:dt/aws-sdk#0.0.0+20161119044246",
+    "lodash": "registry:npm/lodash#4.0.0+20161015015725",
+    "request": "registry:dt/request#0.0.0+20170323073920"
+  },
+  "globalDependencies": {
+    "core-js": "registry:dt/core-js#0.9.7+20161130133742",
+    "jest": "registry:dt/jest#19.2.0+20170312200138",
+    "request-promise": "registry:dt/request-promise#4.1.0+20161119044246"
+  }
+}

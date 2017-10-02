@@ -15,6 +15,10 @@ provider:
       Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
     - Effect: "Allow"
       Action:
+        - "*"
+      Resource: "arn:aws:s3:::${self:provider.stage}-apptab-formatted-data-bucket"
+    - Effect: "Allow"
+      Action:
         - "s3:PutObject"
       Resource:
         Fn::Join:
@@ -26,9 +30,30 @@ provider:
 custom:
   default_stage: dev
 
+package:
+  include:
+    - dist/**
+  exclude:
+    - lib/**
+    - package.json
+    - package-lock.json
+    - typings/**
+    - test/**
+    - request_templates/**
+    - .git
+    - .gitignore
+    - .babelrc
+    - .npmignore
+    - tsconfig.json
+    - typings.json
+    - typings/**
+    - webpack.config.js
+    - .idea/**
+    - node_modules/**
+
 functions:
-  hello:
-    handler: lib/hello
+  processFirehoseData:
+    handler: dist/processFirehoseData.processFirehoseData
 
 resources:
   Resources:
@@ -336,6 +361,15 @@ resources:
                   - Ref: FirehoseLogGroup
                   - ":log-stream:"
                   - Ref: FirehoseLogs
+            - Effect: Allow:
+              Action:
+              - lambda:Invoke
+              Resource:
+                Fn::Join:
+                - ""
+                - - "arn:aws:lambda:${self:provider.region}:"
+                  - Ref: "AWS::AccountId"
+                  - ":function:${self:service}-${self:provider.stage}-processFirehoseData"
             - Effect: Allow
               Action:
               - s3:AbortMultipartUpload
@@ -369,11 +403,15 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:provider.stage}-apptab-data-bucket
+    FormattedDataBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.stage}-apptab-formatted-data-bucket
     Firehose:
       Type: AWS::KinesisFirehose::DeliveryStream
       Properties:
         DeliveryStreamName: ${self:provider.stage}-apptab-data-stream
-        S3DestinationConfiguration:
+        ExtendedS3DestinationConfiguration:
           BucketARN:
             Fn::Join:
             - ''
@@ -387,6 +425,18 @@ resources:
             - FirehoseRole
             - Arn
           CompressionFormat: ZIP
+          ProcessingConfiguraiton:
+            Enabled: true
+            Processors:
+            - Parameters:
+                - ParameterName: LambdaArn
+                  ParameterValue:
+                    Fn::Join:
+                    - ""
+                    - - "arn:aws:lambda:${self:provider.region}:"
+                      - Ref: "AWS::AccountId"
+                      - ":function:${self:service}-${self:provider.stage}-processFirehoseData"
+              Type: Lambda
           Prefix: apptab
           CloudWatchLoggingOptions:
             Enabled: true

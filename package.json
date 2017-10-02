@@ -1,0 +1,36 @@
+{
+  "name": "apptab-backend",
+  "version": "1.0.0",
+  "description": "backendForAppTab",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/webpack/bin/webpack.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/warrenronsiek/apptab-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/warrenronsiek/apptab-backend/issues"
+  },
+  "homepage": "https://github.com/warrenronsiek/apptab-backend#readme",
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1",
+    "ignore-loader": "^0.1.2",
+    "serverless-webpack": "^3.1.0",
+    "ts-loader": "^2.3.7",
+    "webpack": "^3.6.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.125.0",
+    "lodash": "^4.17.4"
+  }
+}
