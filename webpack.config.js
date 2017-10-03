@@ -40,7 +40,10 @@ const build = {
       {
         test: /\.js$/,
         loader: 'babel-loader',
-        exclude: [paths.nodeModules, paths.typings]
+        exclude: [paths.nodeModules, paths.typings],
+        query: {
+          presets: ['es2015', 'stage-2']
+        }
       },
       {
         test: /\.ts$/,
