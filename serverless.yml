@@ -15,8 +15,17 @@ provider:
       Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
     - Effect: "Allow"
       Action:
-        - "*"
+        - "s3:ListBucket"
       Resource: "arn:aws:s3:::${self:provider.stage}-apptab-formatted-data-bucket"
+    - Effect: "Allow"
+      Action:
+        - "s3:PutObject"
+      Resource:
+        Fn::Join:
+        - ""
+        - - "arn:aws:s3:::"
+          - "${self:provider.stage}-apptab-formatted-data-bucket"
+          - "/*"
     - Effect: "Allow"
       Action:
         - "s3:PutObject"

@@ -10,8 +10,8 @@ in the cloudformation template.
 
 Updating the backend
 --------------------
-It is very important to remember that DynamoDB can only create or delete one global secondary index per cloudformation update.
-If you don't do this correctly, your update will fail and you will be stuck in a loop of undoing the things you built and redoing 
+It is very important to remember that DynamoDB can only create *or* delete one global secondary index per cloudformation update.
+If you don't do this correctly, (e.g. replace one index with a new one is one create + one delete) your update will fail and you will be stuck in a loop of undoing the things you built and redoing 
 what you deleted. This can be a disaster as serverless wont necessarily update things when it doesn't detect changes.
 Worst case scenario you have to delete everything and start over. 
 
