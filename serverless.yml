@@ -54,6 +54,7 @@ package:
 functions:
   processFirehoseData:
     handler: dist/processFirehoseData.processFirehoseData
+    timeout: 60
 
 resources:
   Resources:
@@ -389,7 +390,8 @@ resources:
                   - Ref: FirehoseLogs
             - Effect: Allow
               Action:
-              - lambda:Invoke
+              - lambda:InvokeFunction
+              - lambda:InvokeAsync
               Resource:
                 Fn::Join:
                 - ""
@@ -461,7 +463,7 @@ resources:
                     - ""
                     - - "arn:aws:lambda:${self:provider.region}:"
                       - Ref: "AWS::AccountId"
-                      - ":function:apptab-backend-${self:service}-${self:provider.stage}-processFirehoseData"
+                      - ":function:${self:service}-${self:provider.stage}-processFirehoseData"
               Type: Lambda
           Prefix: apptab
           CloudWatchLoggingOptions:
