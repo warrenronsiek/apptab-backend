@@ -10,7 +10,10 @@ in the cloudformation template.
 
 In the ClientPools, under the verification tab, the email box must be checked.
 Also, the message customization tab should indicate that verification emails with links
-should be sent. 
+should be sent.
+
+For any userpool that uses email-link verificaiton a domain also has to be registered. This can be done
+under the App Integration -\> domain name tab.
 
 Updating the backend
 --------------------
