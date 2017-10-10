@@ -1,21 +1,30 @@
 Notes on configurations
 =======================
 
-AppTabCognito phone verification
---------------------------------
+AppTabCognito verification
+--------------------------
 In order to send verification messages the userpool needs an IAM role
 and a checkmark in the box "Verify phone numbers" under the verification
 tab in the userpool console. These attributes cannot be specified
 in the cloudformation template.
 
+In the ClientPools, under the verification tab, the email box must be checked.
+Also, the message customization tab should indicate that verification emails with links
+should be sent. 
+
 Updating the backend
 --------------------
 It is very important to remember that DynamoDB can only create *or* delete one global secondary index per cloudformation update.
-If you don't do this correctly, (e.g. replace one index with a new one is one create + one delete) your update will fail and you will be stuck in a loop of undoing the things you built and redoing 
+If you don't do this correctly, (e.g. editing one index = one create + one delete = 2 updates === a world of suffering) your update will fail and you will be stuck in a loop of undoing the things you built and redoing 
 what you deleted. This can be a disaster as serverless wont necessarily update things when it doesn't detect changes.
 Worst case scenario you have to delete everything and start over. 
 
 Make sure that when you are changing GSIs in DynamoDB tables you make sequential changes and updates as you progress. 
+E.g. if you want to change how a GSI works:
+1. create a new GSI with the config you want
+2. deploy
+3. delete the old GSI
+4. deploy
 
 So you want to restart the world
 --------------------------------
