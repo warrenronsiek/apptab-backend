@@ -378,6 +378,64 @@ resources:
         GenerateSecret: False
         UserPoolId:
           Ref: ClientPool
+    FirehoseWriteIDP:
+      Type: AWS::Cognito::IdentityPool
+      Properties:
+        IdentityPoolName: ${self:provider.stage}CustomerIDP
+        AllowUnauthenticatedIdentities: true
+        CognitoIdentityProviders:
+        - ClientId:
+            Ref: CustomerPoolClient
+          ProviderName:
+            Fn::GetAtt:
+            - CustomerPool
+            - ProviderName
+          ServerSideTokenCheck: true
+    FirehoseWriteIDPRole:
+      Type: AWS::Cognito::IdentityPoolRoleAttachment
+      Properties:
+        IdentityPoolId:
+          Ref: FirehoseWriteIDP
+        Roles:
+          authenticated:
+            Fn::GetAtt:
+            - FirehoseWriteRole
+            - Arn
+          unauthenticated:
+            Fn::GetAtt:
+            - FirehoseWriteRole
+            - Arn
+    FirehoseWriteRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action:
+            - sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud":
+                  Ref: FirehoseWriteIDP
+        Policies:
+        - PolicyName: WriteToFirehose
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+              - firehose:PutRecord
+              - firehose:PutRecordBatch
+              Resource:
+              - Fn::Join:
+                - ""
+                - - "arn:aws:firehose:"
+                  - Ref: AWS::Region
+                  - ":"
+                  - Ref: AWS::AccountId
+                  - ":deliverystream/"
+                  - Ref: Firehose
 
 ##################
 #### FIREHOSE ####
@@ -493,64 +551,6 @@ resources:
               Ref: FirehoseLogGroup
             LogStreamName:
               Ref: FirehoseLogs
-    FirehoseWriteIDP:
-      Type: AWS::Cognito::IdentityPool
-      Properties:
-        IdentityPoolName: ${self:provider.stage}CustomerIDP
-        AllowUnauthenticatedIdentities: true
-        CognitoIdentityProviders:
-        - ClientId:
-            Ref: CustomerPoolClient
-          ProviderName:
-            Fn::GetAtt:
-            - CustomerPool
-            - ProviderName
-          ServerSideTokenCheck: true
-    FirehoseWriteIDPRole:
-      Type: AWS::Cognito::IdentityPoolRoleAttachment
-      Properties:
-        IdentityPoolId:
-          Ref: FirehoseWriteIDP
-        Roles:
-          authenticated:
-            Fn::GetAtt:
-            - FirehoseWriteRole
-            - Arn
-          unauthenticated:
-            Fn::GetAtt:
-            - FirehoseWriteRole
-            - Arn
-    FirehoseWriteRole:
-      Type: AWS::IAM::Role
-      Properties:
-        AssumeRolePolicyDocument:
-          Statement:
-          - Effect: Allow
-            Principal:
-              Federated: cognito-identity.amazonaws.com
-            Action:
-            - sts:AssumeRoleWithWebIdentity
-            Condition:
-              StringEquals:
-                "cognito-identity.amazonaws.com:aud":
-                  Ref: FirehoseWriteIDP
-        Policies:
-        - PolicyName: WriteToFirehose
-          PolicyDocument:
-            Statement:
-            - Effect: Allow
-              Action:
-              - firehose:PutRecord
-              - firehose:PutRecordBatch
-              Resource:
-              - Fn::Join:
-                - ""
-                - - "arn:aws:firehose:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - ":deliverystream/"
-                  - Ref: Firehose
 
 ######################
 #### S3 DATA LAKE ####
@@ -642,18 +642,18 @@ resources:
         CatalogId:
           Ref: AWS::AccountId
         DatabaseInput:
-          Name: ${self:provider.stage}-apptab
+          Name: ${self:provider.stage}apptab
     EventTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}-apptab
+        DatabaseName: ${self:provider.stage}apptab
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
           TableType: VIRTUAL_VIEW
           Name: events
           Parameters:
-            Classification: json
+            classification: json
           PartitionKeys:
           - Name: eventId
             Type: string
@@ -685,14 +685,14 @@ resources:
     CartTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}-apptab
+        DatabaseName: ${self:provider.stage}apptab
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
           TableType: VIRTUAL_VIEW
           Name: cart
           Parameters:
-            Classification: json
+            classification: json
           PartitionKeys:
           - Name: eventId
             Type: string
@@ -726,7 +726,7 @@ resources:
             - Name: showIncrement
               Type: boolean
             - Name: itemOptions
-              Type: array
+              Type: array<struct<optionSetName:string,optionSetId:int,data:array<struct<optionName:string,price:int,optionId:int>>>>
             - Name: count
               Type: int
             Location: 's3://${self:provider.stage}-apptab-formatted-data-bucket/cart/'
@@ -734,14 +734,14 @@ resources:
     LoginTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}-apptab
+        DatabaseName: ${self:provider.stage}apptab
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
           TableType: VIRTUAL_VIEW
           Name: logins
           Parameters:
-            Classification: json
+            classification: json
           PartitionKeys:
           - Name: eventId
             Type: string
@@ -771,14 +771,14 @@ resources:
     NodeGlueTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}-apptab
+        DatabaseName: ${self:provider.stage}apptab
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
           TableType: VIRTUAL_VIEW
           Name: nodes
           Parameters:
-            Classification: json
+            classification: json
           PartitionKeys:
           - Name: eventId
             Type: string
@@ -804,14 +804,14 @@ resources:
     PaymentsTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}-apptab
+        DatabaseName: ${self:provider.stage}apptab
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
           TableType: VIRTUAL_VIEW
           Name: payments
           Parameters:
-            Classification: json
+            classification: json
           PartitionKeys:
           - Name: eventId
             Type: string
@@ -839,14 +839,14 @@ resources:
     SessionsTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}-apptab
+        DatabaseName: ${self:provider.stage}apptab
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
           TableType: VIRTUAL_VIEW
           Name: sessions
           Parameters:
-            Classification: json
+            classification: json
           PartitionKeys:
           - Name: sessionId
             Type: string
@@ -869,6 +869,19 @@ resources:
               Type: string
             Location: 's3://${self:provider.stage}-apptab-formatted-data-bucket/sessions/'
             Compressed: False
+    Crawler:
+      Type: AWS::Glue::Crawler
+      Properties:
+        Role:
+          Ref: GlueRole
+        DatabaseName: ${self:provider.stage}apptab
+        Name: ${self:provider.stage}apptabcrawler
+        Targets:
+          S3Targets:
+          - Path: 's3://${self:provider.stage}-apptab-formatted-data-bucket/'
+        SchemaChangePolicy:
+          UpdateBehavior: UPDATE_IN_DATABASE
+          DeleteBehavior: DEPRECATE_IN_DATABASE
 
 #################
 #### OUTPUTS ####
