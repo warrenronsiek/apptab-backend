@@ -436,6 +436,55 @@ resources:
                   - Ref: AWS::AccountId
                   - ":deliverystream/"
                   - Ref: Firehose
+    AthenaAccessIDP:
+      Type: AWS::Cognito::IdentityPool
+      Properties:
+        IdentityPoolName: ${self:provider.stage}ClientIDP
+        AllowUnauthenticatedIdentities: false
+        CognitoIdentityProviders:
+        - ClientId:
+            Ref: ClientPoolClient
+          ProviderName:
+            Fn::GetAtt:
+            - ClientPool
+            - ProviderName
+          ServerSideTokenCheck: true
+    AthenaAccessIDPA:
+      Type: AWS::Cognito::IdentityPoolRoleAttachment
+      Properties:
+        IdentityPoolId:
+          Ref: AthenaAccessIDP
+        Roles:
+          authenticated:
+            Fn::GetAtt:
+            - AthenaAccessRole
+            - Arn
+    AthenaAccessRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action:
+            - sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud":
+                  Ref: AthenaAccessIDP
+        Policies:
+        - PolicyName: WriteToFirehose
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+              - s3:GetBucketLocation
+              - s3:GetObject
+              Resource:
+              - Fn::GetAtt:
+                - AthenaQueryBucket
+                - Arn
 
 ##################
 #### FIREHOSE ####
@@ -882,7 +931,10 @@ resources:
         SchemaChangePolicy:
           UpdateBehavior: UPDATE_IN_DATABASE
           DeleteBehavior: DEPRECATE_IN_DATABASE
-
+    AthenaQueryBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.stage}-apptab-athena-queries
 #################
 #### OUTPUTS ####
 #################
