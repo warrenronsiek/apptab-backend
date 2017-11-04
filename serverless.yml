@@ -474,7 +474,7 @@ resources:
                 "cognito-identity.amazonaws.com:aud":
                   Ref: AthenaAccessIDP
         Policies:
-        - PolicyName: WriteToFirehose
+        - PolicyName: AthenaBucketAccess
           PolicyDocument:
             Statement:
             - Effect: Allow
@@ -680,7 +680,9 @@ resources:
               - "s3:GetObject"
               - "s3:PutObject"
               Resource:
-              -  "arn:aws:s3:::dev-apptab-formatted-data-bucket*"
+              - Fn::GetAtt:
+                - FormattedDataBucket
+                - Arn
     ClosedTransactionBucket:
       Type: AWS::S3::Bucket
       Properties:
