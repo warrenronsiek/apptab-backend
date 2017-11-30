@@ -309,6 +309,48 @@ resources:
             WriteCapacityUnits: 1
         StreamSpecification:
           StreamViewType: NEW_AND_OLD_IMAGES
+    ChargeTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.stage}-ChargeTable
+        AttributeDefinitions:
+        - AttributeName: CardToken
+          AttributeType: S
+        - AttributeName: ChargeId
+          AttributeType: S
+        - AttributeName: CustomerId
+          AttributeType: S
+        KeySchema:
+        - AttributeName: ChargeId
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: '1'
+          WriteCapacityUnits: '1'
+        GlobalSecondaryIndexes:
+          - IndexName: CardTokenKey
+            KeySchema:
+            - AttributeName: CardToken
+              KeyType: HASH
+            - AttributeName: ChargeId
+              KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+          - IndexName: CustomerKey
+            KeySchema:
+            - AttributeName: CustomerId
+              KeyType: HASH
+            - AttributeName: ChargeId
+              KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+            ProvisionedThroughput:
+              ReadCapacityUnits: 1
+              WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
 
 ###################
 #### USERPOOLS ####
