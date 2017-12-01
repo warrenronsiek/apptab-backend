@@ -1008,6 +1008,11 @@ resources:
         Ref: CardTable
       Export:
         Name: ${self:provider.stage}-CardTable
+    ChargeTable:
+      Value:
+        Ref: ChargeTable
+      Export:
+        Name: ${self:provider.stage}-ChargeTable
     ClientTable:
       Value:
         Ref: ClientTable
