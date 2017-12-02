@@ -256,6 +256,8 @@ resources:
             AttributeType: S
           - AttributeName: VenueId
             AttributeType: S
+          - AttributeName: CardToken
+            AttributeType: S
         KeySchema:
           - AttributeName: TransactionId
             KeyType: HASH
@@ -299,6 +301,17 @@ resources:
         - IndexName: NodeKey
           KeySchema:
           - AttributeName: NodeId
+            KeyType: HASH
+          - AttributeName: TransactionId
+            KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 1
+            WriteCapacityUnits: 1
+        - IndexName: CardKey
+          KeySchema:
+          - AttributeName: CardToken
             KeyType: HASH
           - AttributeName: TransactionId
             KeyType: RANGE
