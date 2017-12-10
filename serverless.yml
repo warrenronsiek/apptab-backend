@@ -340,7 +340,7 @@ resources:
           ReadCapacityUnits: '1'
           WriteCapacityUnits: '1'
         GlobalSecondaryIndexes:
-          - IndexName: CardTokenKey
+          - IndexName: CardKey
             KeySchema:
             - AttributeName: CardToken
               KeyType: HASH
