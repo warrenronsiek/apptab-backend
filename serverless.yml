@@ -732,12 +732,17 @@ resources:
                   - "aws-glue-service-resource"
             - Effect: Allow
               Action:
-              - "s3:GetObject"
-              - "s3:PutObject"
+              - "*"
               Resource:
               - Fn::GetAtt:
                 - FormattedDataBucket
                 - Arn
+              - Fn::Join:
+                - ''
+                - - Fn::GetAtt:
+                    - FormattedDataBucket
+                    - Arn
+                  - '/*'
     ClosedTransactionBucket:
       Type: AWS::S3::Bucket
       Properties:
@@ -974,6 +979,45 @@ resources:
             - Name: activeVenue
               Type: string
             Location: 's3://${self:provider.stage}-apptab-formatted-data-bucket/sessions/'
+            Compressed: False
+    VenuesTable:
+      Type: AWS::Glue::Table
+      Properties:
+        DatabaseName: ${self:provider.stage}apptab
+        CatalogId:
+          Ref: AWS::AccountId
+        TableInput:
+          TableType: VIRTUAL_VIEW
+          Name: venues
+          Parameters:
+            classification: json
+          PartitionKeys:
+          - Name: eventId
+            Type: string
+          StorageDescriptor:
+            StoredAsSubDirectories: True
+            InputFormat: org.apache.hadoop.mapred.TextInputFormat
+            OutputFormat: org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat
+            SerdeInfo:
+              SerializationLibrary: org.openx.data.jsonserde.JsonSerDe
+              Parameters:
+                paths: sessionId,date,activeNode,activeVenue
+            Columns:
+            - Name: eventId
+              Type: string
+            - Name: deviceToken
+              Type: string
+            - Name: date
+              Type: bigint
+            - Name: os
+              Type: string
+            - Name: venueId
+              Type: string
+            - Name: venueName
+              Type: string
+            - Name: address
+              Type: string
+            Location: 's3://${self:provider.stage}-apptab-formatted-data-bucket/venues/'
             Compressed: False
     Crawler:
       Type: AWS::Glue::Crawler
