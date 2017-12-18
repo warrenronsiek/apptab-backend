@@ -540,7 +540,19 @@ resources:
               - Fn::GetAtt:
                 - AthenaQueryBucket
                 - Arn
-
+        - PolicyName: ImageBucketAccess
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+              - "s3:*"
+              Resource:
+              - Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                    - ImageBucket
+                    - Arn
+                  - "/*"
 ##################
 #### FIREHOSE ####
 ##################
@@ -1036,6 +1048,23 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:provider.stage}-apptab-athena-queries
+    ImageBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.stage}-apptab-image-bucket
+        AccessControl: PublicRead
+        CorsConfiguration:
+          CorsRules:
+          - AllowedMethods:
+            - GET
+            - PUT
+            - HEAD
+            - POST
+            - DELETE
+            AllowedOrigins:
+            - "*"
+            AllowedHeaders:
+            - "*"
 #################
 #### OUTPUTS ####
 #################
