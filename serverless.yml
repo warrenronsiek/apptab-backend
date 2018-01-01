@@ -491,6 +491,19 @@ resources:
                   - Ref: AWS::AccountId
                   - ":deliverystream/"
                   - Ref: Firehose
+        - PolicyName: ImageBucketAccess
+          PolicyDocument:
+            Statement:
+            - Effect: Allow
+              Action:
+              - "s3:*"
+              Resource:
+              - Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                    - ImageBucket
+                    - Arn
+                  - "/*"
     AthenaAccessIDP:
       Type: AWS::Cognito::IdentityPool
       Properties:
@@ -1052,7 +1065,6 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:provider.stage}-apptab-image-bucket
-        AccessControl: PublicRead
         CorsConfiguration:
           CorsRules:
           - AllowedMethods:
