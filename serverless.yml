@@ -433,11 +433,13 @@ resources:
         GenerateSecret: False
         UserPoolId:
           Ref: ClientPool
-    FirehoseWriteIDP:
+    CustomerIdentityPool:
       Type: AWS::Cognito::IdentityPool
       Properties:
         IdentityPoolName: ${self:provider.stage}CustomerIDP
         AllowUnauthenticatedIdentities: true
+        SupportedLoginProviders:
+          "graph.facebook.com": 1945842355430424
         CognitoIdentityProviders:
         - ClientId:
             Ref: CustomerPoolClient
@@ -446,21 +448,21 @@ resources:
             - CustomerPool
             - ProviderName
           ServerSideTokenCheck: true
-    FirehoseWriteIDPRole:
+    CustomerIdentityPoolRole:
       Type: AWS::Cognito::IdentityPoolRoleAttachment
       Properties:
         IdentityPoolId:
-          Ref: FirehoseWriteIDP
+          Ref: CustomerIdentityPool
         Roles:
           authenticated:
             Fn::GetAtt:
-            - FirehoseWriteRole
+            - AuthIDPRole
             - Arn
           unauthenticated:
             Fn::GetAtt:
-            - FirehoseWriteRole
+            - UnauthIDPRole
             - Arn
-    FirehoseWriteRole:
+    AuthIDPRole:
       Type: AWS::IAM::Role
       Properties:
         AssumeRolePolicyDocument:
@@ -473,37 +475,79 @@ resources:
             Condition:
               StringEquals:
                 "cognito-identity.amazonaws.com:aud":
-                  Ref: FirehoseWriteIDP
-        Policies:
-        - PolicyName: WriteToFirehose
-          PolicyDocument:
-            Statement:
-            - Effect: Allow
-              Action:
-              - firehose:PutRecord
-              - firehose:PutRecordBatch
-              Resource:
-              - Fn::Join:
-                - ""
-                - - "arn:aws:firehose:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - ":deliverystream/"
-                  - Ref: Firehose
-        - PolicyName: ImageBucketAccess
-          PolicyDocument:
-            Statement:
-            - Effect: Allow
-              Action:
-              - "s3:*"
-              Resource:
-              - Fn::Join:
-                - ""
-                - - Fn::GetAtt:
-                    - ImageBucket
-                    - Arn
-                  - "/*"
+                  Ref: CustomerIdentityPool
+    WriteToFirehosePolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: 'apptab-${self:provider.stage}-WriteToFirehosePolicy'
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - firehose:PutRecord
+            - firehose:PutRecordBatch
+            Resource:
+            - Fn::Join:
+              - ""
+              - - "arn:aws:firehose:"
+                - Ref: AWS::Region
+                - ":"
+                - Ref: AWS::AccountId
+                - ":deliverystream/"
+                - Ref: Firehose
+        Roles:
+        - Ref: AuthIDPRole
+        - Ref: UnauthIDPRole
+    ImageBucketAccessPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: 'apptab-${self:provider.stage}-ImageBucketAccessPolicy'
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - "s3:*"
+            Resource:
+            - Fn::Join:
+              - ""
+              - - Fn::GetAtt:
+                  - ImageBucket
+                  - Arn
+                - "/*"
+        Roles:
+        - Ref: AuthIDPRole
+        - Ref: UnauthIDPRole
+    ExecuteFBLoginLambdaPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: 'apptab-${self:provider.stage}-ExecuteFBLoginLambdaPolicy'
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - "lambda:InvokeFunction"
+            Resource:
+            - Fn::Join:
+              - ""
+              - - "arn:aws:lambda:${self:provider.region}:"
+                - Ref: "AWS::AccountId"
+                - ":function:${self:service}-${self:provider.stage}-fbLogin"
+        Roles:
+        - Ref: AuthIDPRole
+    UnauthIDPRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action:
+            - sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud":
+                  Ref: CustomerIdentityPool
     AthenaAccessIDP:
       Type: AWS::Cognito::IdentityPool
       Properties:
