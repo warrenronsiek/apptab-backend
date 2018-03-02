@@ -531,7 +531,7 @@ resources:
               - ""
               - - "arn:aws:lambda:${self:provider.region}:"
                 - Ref: "AWS::AccountId"
-                - ":function:${self:service}-${self:provider.stage}-fbLogin"
+                - ":function:apptab-customer-api-${self:provider.stage}-fbLogin"
         Roles:
         - Ref: AuthIDPRole
     UnauthIDPRole:
