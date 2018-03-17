@@ -381,14 +381,14 @@ resources:
           - Name: name
             AttributeDataType: String
             Mutable: True
-            Required: True
+            Required: False
             StringAttributeConstraints:
               MaxLength: 11
               MinLength: 2
           - Name: phone_number
             AttributeDataType: String
             Mutable: False
-            Required: True
+            Required: False
             StringAttributeConstraints:
               MaxLength: 20
               MinLength: 12
@@ -826,7 +826,8 @@ resources:
     EventTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -865,7 +866,8 @@ resources:
     CartTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -914,7 +916,8 @@ resources:
     LoginTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -951,7 +954,8 @@ resources:
     NodeGlueTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -984,7 +988,8 @@ resources:
     PaymentsTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -1019,7 +1024,8 @@ resources:
     SessionsTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -1052,7 +1058,8 @@ resources:
     VenuesTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -1093,7 +1100,8 @@ resources:
       Properties:
         Role:
           Ref: GlueRole
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         Name: ${self:provider.stage}apptabcrawler
         Targets:
           S3Targets:
