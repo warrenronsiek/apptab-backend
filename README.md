@@ -41,15 +41,33 @@ E.g. if you want to change how a GSI works:
 So you want to restart the world
 --------------------------------
 1. run `sls remove` for apptab-web, apptab-client-api, and apptab-customer-api
-2. delete the contents of the relevent `{stage}-apptab-data-bucket` in s3 (otherwise delete will fail)
+2. delete the contents of the relevent  in 
 3. delete the iam roles associated with the phone verification in the userpools. You can see these under the 
 verifications tab of the userpool in the console.
-2. run `sls remove` for apptab-backend
-3. run `sls deploy` in the following order:
+4. delete the contents of `{stage}-apptab-athena-queries`, `{stage}-apptab-formatted-data-bucket`, `{stage}-apptab-data-bucket`, `{stage}-apptab-image-bucket` in s3 (otherwise delete will fail).
+5. delete the domain from the cognito userpool.
+6. run `sls remove` for apptab-backend
+7. run `sls deploy` in the following order:
     1. apptab-backend
     2. apptab-customer-api, apptab-client-api, apptab-web-api
-4. go into the cognito console and adjust the userpools as described above in this document.
-5. go into the `/app/vars.js` file in the AppTabCustomerApp and replace identitypoolids/lambda urls generated
+8. go into the cognito console and adjust the userpools as described above in this document.
+9. go into the `/app/vars.js` file in the AppTabCustomerApp and replace identitypoolids/lambda urls generated
 by steps 1 and 2. 
-6. generate a credentials set associated with the testing users for the serverless projects and put them in the relevant
+10. generate a credentials set associated with the testing users for the serverless projects and put them in the relevant
 `/test/common/{stage}TesterCredentials.json` files. 
+11. get the facebook app id and secret
+    1. put them into the cognito userpool under the tab "identity providers". 
+    2. Put 'email' and 'public_profile' under authorizaiton scopes. 
+    3. Click enable.
+12. use the same facebook credentials and enable them inside of the federated identity pool.
+13. follow steps [here](https://docs.aws.amazon.com/cognito/latest/developerguide/cognito-user-pools-social.html) to enable facebook login.
+14. create cognito userpool domain in the console under domains tab 
+15. login to facebook developer and click on facebook login > Settings
+    1. add the userpool domain url to 'valid oauth redirect uris' (e.g. https://apptabdevuserpool.auth.us-west-2.amazoncognito.com/oath2/idpresponse make sure to add the /oath2/idpresponse bit.)
+16. In the cognito userpool go to App Integration > App Client Settings
+    1. Add "apptab://login" to the callback/signout urls 
+    2. enable facebook (still under App Client Settings) 
+    3. check the boxes 'Authorization Code Grant' and add 'phone', 'email', 'openid', 'profile' under allowed oauth scopes.
+    4. save
+    5. take the 'ID' off of this page and update the login url in the app vars.js. it should look like:
+    `https://<domain name>.auth.us-west-2.amazoncognito.com/login?response_type=code&client_id=[ID]&redirect_uri=apptab://login`

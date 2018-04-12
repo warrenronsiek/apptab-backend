@@ -381,14 +381,14 @@ resources:
           - Name: name
             AttributeDataType: String
             Mutable: True
-            Required: True
+            Required: False
             StringAttributeConstraints:
               MaxLength: 11
               MinLength: 2
           - Name: phone_number
             AttributeDataType: String
             Mutable: False
-            Required: True
+            Required: False
             StringAttributeConstraints:
               MaxLength: 20
               MinLength: 12
@@ -433,11 +433,13 @@ resources:
         GenerateSecret: False
         UserPoolId:
           Ref: ClientPool
-    FirehoseWriteIDP:
+    CustomerIdentityPool:
       Type: AWS::Cognito::IdentityPool
       Properties:
         IdentityPoolName: ${self:provider.stage}CustomerIDP
         AllowUnauthenticatedIdentities: true
+        SupportedLoginProviders:
+          "graph.facebook.com": 1945842355430424
         CognitoIdentityProviders:
         - ClientId:
             Ref: CustomerPoolClient
@@ -446,21 +448,21 @@ resources:
             - CustomerPool
             - ProviderName
           ServerSideTokenCheck: true
-    FirehoseWriteIDPRole:
+    CustomerIdentityPoolRole:
       Type: AWS::Cognito::IdentityPoolRoleAttachment
       Properties:
         IdentityPoolId:
-          Ref: FirehoseWriteIDP
+          Ref: CustomerIdentityPool
         Roles:
           authenticated:
             Fn::GetAtt:
-            - FirehoseWriteRole
+            - AuthIDPRole
             - Arn
           unauthenticated:
             Fn::GetAtt:
-            - FirehoseWriteRole
+            - UnauthIDPRole
             - Arn
-    FirehoseWriteRole:
+    AuthIDPRole:
       Type: AWS::IAM::Role
       Properties:
         AssumeRolePolicyDocument:
@@ -473,37 +475,79 @@ resources:
             Condition:
               StringEquals:
                 "cognito-identity.amazonaws.com:aud":
-                  Ref: FirehoseWriteIDP
-        Policies:
-        - PolicyName: WriteToFirehose
-          PolicyDocument:
-            Statement:
-            - Effect: Allow
-              Action:
-              - firehose:PutRecord
-              - firehose:PutRecordBatch
-              Resource:
-              - Fn::Join:
-                - ""
-                - - "arn:aws:firehose:"
-                  - Ref: AWS::Region
-                  - ":"
-                  - Ref: AWS::AccountId
-                  - ":deliverystream/"
-                  - Ref: Firehose
-        - PolicyName: ImageBucketAccess
-          PolicyDocument:
-            Statement:
-            - Effect: Allow
-              Action:
-              - "s3:*"
-              Resource:
-              - Fn::Join:
-                - ""
-                - - Fn::GetAtt:
-                    - ImageBucket
-                    - Arn
-                  - "/*"
+                  Ref: CustomerIdentityPool
+    WriteToFirehosePolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: 'apptab-${self:provider.stage}-WriteToFirehosePolicy'
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - firehose:PutRecord
+            - firehose:PutRecordBatch
+            Resource:
+            - Fn::Join:
+              - ""
+              - - "arn:aws:firehose:"
+                - Ref: AWS::Region
+                - ":"
+                - Ref: AWS::AccountId
+                - ":deliverystream/"
+                - Ref: Firehose
+        Roles:
+        - Ref: AuthIDPRole
+        - Ref: UnauthIDPRole
+    ImageBucketAccessPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: 'apptab-${self:provider.stage}-ImageBucketAccessPolicy'
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - "s3:*"
+            Resource:
+            - Fn::Join:
+              - ""
+              - - Fn::GetAtt:
+                  - ImageBucket
+                  - Arn
+                - "/*"
+        Roles:
+        - Ref: AuthIDPRole
+        - Ref: UnauthIDPRole
+    ExecuteFBLoginLambdaPolicy:
+      Type: AWS::IAM::Policy
+      Properties:
+        PolicyName: 'apptab-${self:provider.stage}-ExecuteFBLoginLambdaPolicy'
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action:
+            - "lambda:InvokeFunction"
+            Resource:
+            - Fn::Join:
+              - ""
+              - - "arn:aws:lambda:${self:provider.region}:"
+                - Ref: "AWS::AccountId"
+                - ":function:apptab-customer-api-${self:provider.stage}-fbLogin"
+        Roles:
+        - Ref: AuthIDPRole
+    UnauthIDPRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Statement:
+          - Effect: Allow
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action:
+            - sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud":
+                  Ref: CustomerIdentityPool
     AthenaAccessIDP:
       Type: AWS::Cognito::IdentityPool
       Properties:
@@ -782,7 +826,8 @@ resources:
     EventTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -821,7 +866,8 @@ resources:
     CartTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -870,7 +916,8 @@ resources:
     LoginTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -907,7 +954,8 @@ resources:
     NodeGlueTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -940,7 +988,8 @@ resources:
     PaymentsTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -975,7 +1024,8 @@ resources:
     SessionsTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -1008,7 +1058,8 @@ resources:
     VenuesTable:
       Type: AWS::Glue::Table
       Properties:
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         CatalogId:
           Ref: AWS::AccountId
         TableInput:
@@ -1049,7 +1100,8 @@ resources:
       Properties:
         Role:
           Ref: GlueRole
-        DatabaseName: ${self:provider.stage}apptab
+        DatabaseName:
+          Ref: GlueDatabase
         Name: ${self:provider.stage}apptabcrawler
         Targets:
           S3Targets:
