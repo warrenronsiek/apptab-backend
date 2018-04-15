@@ -79,6 +79,8 @@ resources:
           AttributeType: S
         - AttributeName: VenueId
           AttributeType: S
+        - AttributeName: BeaconId
+          AttributeType: S
         KeySchema:
         - AttributeName: NodeId
           KeyType: HASH
@@ -87,6 +89,17 @@ resources:
           WriteCapacityUnits: '1'
         TableName: ${self:provider.stage}-NodeTable
         GlobalSecondaryIndexes:
+        - IndexName: BeaconIdToNodeId
+          KeySchema:
+          - AttributeName: BeaconId
+            KeyType: HASH
+          - AttributeName: NodeId
+            KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: '1'
+            WriteCapacityUnits: '1'
         - IndexName: VenueIdToNodeId
           KeySchema:
           - AttributeName: VenueId
@@ -1143,6 +1156,11 @@ resources:
         Ref: NodeTable
       Export:
         Name: ${self:provider.stage}-NodeTable
+    BeaconTable:
+      Value:
+        Ref: BeaconTable
+      Export:
+        Name: ${self:provider.stage}-BeaconTable
     MenuTable:
       Value:
         Ref: MenuTable
