@@ -71,6 +71,25 @@ resources:
 #######################
 #### DYNAMO TABLES ####
 #######################
+    BeaconTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+        - AttributeName: BeaconId
+          AttributeType: S
+        - AttributeName: NodeId
+          AttributeType: S
+        KeySchema:
+        - AttributeName: BeaconId
+          KeyType: HASH
+        - AttributeName: NodeId
+          KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: '1'
+          WriteCapacityUnits: '1'
+        TableName: ${self:provider.stage}-BeaconTable
+        StreamSpecification:
+          StreamViewType: NEW_AND_OLD_IMAGES
     NodeTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -78,8 +97,6 @@ resources:
         - AttributeName: NodeId
           AttributeType: S
         - AttributeName: VenueId
-          AttributeType: S
-        - AttributeName: BeaconId
           AttributeType: S
         KeySchema:
         - AttributeName: NodeId
@@ -89,17 +106,6 @@ resources:
           WriteCapacityUnits: '1'
         TableName: ${self:provider.stage}-NodeTable
         GlobalSecondaryIndexes:
-        - IndexName: BeaconIdToNodeId
-          KeySchema:
-          - AttributeName: BeaconId
-            KeyType: HASH
-          - AttributeName: NodeId
-            KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: '1'
-            WriteCapacityUnits: '1'
         - IndexName: VenueIdToNodeId
           KeySchema:
           - AttributeName: VenueId
